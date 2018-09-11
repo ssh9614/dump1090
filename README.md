@@ -1,3 +1,15 @@
+# HEY, THIS IS OLD CODE
+
+This fork sees very little maintenance and is really only here for historical reasons.
+
+I'd strongly recommend using dump1090-fa (https://github.com/flightaware/dump1090) instead
+as that is where current development is happening.
+
+I can't provide support for this fork.
+
+Historical readme follows..
+
+
 # dump1090-mutability Debian/Raspbian packages
 [![Build Status](https://travis-ci.org/mutability/dump1090.svg?branch=master)](https://travis-ci.org/mutability/dump1090)
 
