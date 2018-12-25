@@ -8,5 +8,4 @@ See the file COPYING for details.
 
 # Features
 
-* 2.4MHz "oversampling" support
-* somewhat cleaned-up network code
+* increased resolution for output time stamp
