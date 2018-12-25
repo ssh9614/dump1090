@@ -219,21 +219,18 @@ static void convert_sc16q11_generic(void *iq_data,
 
 static struct {
     input_format_t format;
-    int can_filter_dc;
     iq_convert_fn fn;
     const char *description;
 } converters_table[] = {
     // In order of preference
-    { INPUT_UC8,     0, convert_uc8_nodc,         "UC8, integer/table path" },
-    { INPUT_UC8,     1, convert_uc8_generic,      "UC8, float path" },
-    { INPUT_SC16,    1, convert_sc16_generic,     "SC16, float path" },
-    { INPUT_SC16Q11, 1, convert_sc16q11_generic,  "SC16Q11, float path" },
-    { 0, 0, NULL, NULL }
+    { INPUT_UC8,     convert_uc8_nodc,         "UC8, integer/table path" },
+    { INPUT_UC8,     convert_uc8_generic,      "UC8, float path" },
+    { INPUT_SC16,    convert_sc16_generic,     "SC16, float path" },
+    { INPUT_SC16Q11, convert_sc16q11_generic,  "SC16Q11, float path" },
+    { 0, NULL, NULL }
 };
 
 iq_convert_fn init_converter(input_format_t format,
-                             double sample_rate,
-                             int filter_dc,
                              struct converter_state **out_state)
 {
     int i;
@@ -241,14 +238,11 @@ iq_convert_fn init_converter(input_format_t format,
     for (i = 0; converters_table[i].fn; ++i) {
         if (converters_table[i].format != format)
             continue;
-        if (filter_dc && !converters_table[i].can_filter_dc)
-            continue;
         break;
     }
 
     if (!converters_table[i].fn) {
-        fprintf(stderr, "no suitable converter for format=%d dc=%d\n",
-                format, filter_dc);
+        fprintf(stderr, "no suitable converter for format=%d\n",format);
         return NULL;
     }
 
@@ -263,15 +257,10 @@ iq_convert_fn init_converter(input_format_t format,
     (*out_state)->z1_I = 0;
     (*out_state)->z1_Q = 0;
 
-    if (filter_dc) {
-        // init DC block @ 1Hz
-        (*out_state)->dc_b = exp(-2.0 * M_PI * 1.0 / sample_rate);
-        (*out_state)->dc_a = 1.0 - (*out_state)->dc_b;
-    } else {
-        // if the converter does filtering, make sure it has no effect
-        (*out_state)->dc_b = 1.0;
-        (*out_state)->dc_a = 0.0;
-    }
+
+    // if the converter does filtering, make sure it has no effect
+    (*out_state)->dc_b = 1.0;
+    (*out_state)->dc_a = 0.0;
 
     return converters_table[i].fn;
 }

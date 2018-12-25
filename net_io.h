@@ -22,7 +22,6 @@
 
 // Describes a networking service (group of connections)
 
-struct aircraft;
 struct modesMessage;
 struct client;
 struct net_service;
@@ -35,11 +34,8 @@ struct net_service {
     const char *descr;
     int listener_count;  // number of listeners
     int *listener_fds;   // listening FDs
-
     int connections;     // number of active clients
-
     struct net_writer *writer; // shared writer state
-
     const char *read_sep;      // hander details for input data
     read_fn read_handler;
 };
@@ -56,9 +52,9 @@ struct client {
 // Common writer state for all output sockets of one type
 struct net_writer {
     struct net_service *service; // owning service
-    void *data;          // shared write buffer, sized MODES_OUT_BUF_SIZE
-    int dataUsed;        // number of bytes of write buffer currently used
-    uint64_t lastWrite;  // time of last write to clients
+    void         *data;          // shared write buffer, sized MODES_OUT_BUF_SIZE
+    int          dataUsed;       // number of bytes of write buffer currently used
+    uint64_t     lastWrite;      // time of last write to clients
     heartbeat_fn send_heartbeat; // function that queues a heartbeat if needed
 };
 
@@ -68,19 +64,8 @@ void serviceListen(struct net_service *service, char *bind_addr, char *bind_port
 struct client *createSocketClient(struct net_service *service, int fd);
 struct client *createGenericClient(struct net_service *service, int fd);
 
-// view1090 / faup1090 want to create these themselves:
-struct net_service *makeBeastInputService(void);
-struct net_service *makeFatsvOutputService(void);
-
 void modesInitNet(void);
-void modesQueueOutput(struct modesMessage *mm, struct aircraft *a);
+void modesQueueOutput(struct modesMessage *mm);
 void modesNetPeriodicWork(void);
-
-// TODO: move these somewhere else
-char *generateAircraftJson(const char *url_path, int *len);
-char *generateStatsJson(const char *url_path, int *len);
-char *generateReceiverJson(const char *url_path, int *len);
-char *generateHistoryJson(const char *url_path, int *len);
-void writeJsonToFile(const char *file, char * (*generator) (const char *,int*));
 
 #endif
